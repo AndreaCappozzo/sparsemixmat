@@ -8,6 +8,7 @@ using namespace Rcpp;
 using namespace std;
 
 // [[Rcpp::depends(RcppArmadillo)]]
+//' @export
 // [[Rcpp::export]]
 Rcpp::List mean_w_array(arma::cube data, arma::mat z)
 {
@@ -40,6 +41,7 @@ Rcpp::List mean_w_array(arma::cube data, arma::mat z)
 
 
 // [[Rcpp::depends(RcppArmadillo)]]
+//' @export
 // [[Rcpp::export]]
 Rcpp::List cov_w_array(Rcpp::List data, arma::mat z, arma::cube mean,
                        arma::cube inv, arma::vec Nk,

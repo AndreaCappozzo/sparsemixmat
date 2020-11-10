@@ -1,4 +1,4 @@
-
+#' @export
 EM_controls <- function(tol = c(1e-05, sqrt(.Machine$double.eps)),
                         max_iter = rep(1e03, 2),
                         type_start = c("hc", "random"),
@@ -15,7 +15,7 @@ EM_controls <- function(tol = c(1e-05, sqrt(.Machine$double.eps)),
 
 #' Scale and centering of three-way objects
 #'
-#' @param X p \times q \times N three-way data
+#' @param X p  q  N three-way data
 #'
 #' @return
 #' @export

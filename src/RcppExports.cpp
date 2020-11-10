@@ -6,55 +6,100 @@
 
 using namespace Rcpp;
 
-// rcpparma_hello_world
-arma::mat rcpparma_hello_world();
-RcppExport SEXP _sparsemixmat_rcpparma_hello_world() {
+// estep_calc
+Rcpp::List estep_calc(Rcpp::List data, arma::mat z, arma::cube mean, arma::vec tau, arma::cube sigma, arma::cube theta, arma::cube omega, arma::cube gamma, arma::vec det_sigma, arma::vec det_theta);
+RcppExport SEXP _sparsemixmat_estep_calc(SEXP dataSEXP, SEXP zSEXP, SEXP meanSEXP, SEXP tauSEXP, SEXP sigmaSEXP, SEXP thetaSEXP, SEXP omegaSEXP, SEXP gammaSEXP, SEXP det_sigmaSEXP, SEXP det_thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpparma_hello_world());
+    Rcpp::traits::input_parameter< Rcpp::List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type omega(omegaSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type det_sigma(det_sigmaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type det_theta(det_thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(estep_calc(data, z, mean, tau, sigma, theta, omega, gamma, det_sigma, det_theta));
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpparma_outerproduct
-arma::mat rcpparma_outerproduct(const arma::colvec& x);
-RcppExport SEXP _sparsemixmat_rcpparma_outerproduct(SEXP xSEXP) {
+// mstep_obj
+Rcpp::List mstep_obj(Rcpp::List data, arma::mat z, arma::cube mean, arma::cube sigma, arma::cube theta, arma::cube omega, arma::cube gamma, arma::vec tau);
+RcppExport SEXP _sparsemixmat_mstep_obj(SEXP dataSEXP, SEXP zSEXP, SEXP meanSEXP, SEXP sigmaSEXP, SEXP thetaSEXP, SEXP omegaSEXP, SEXP gammaSEXP, SEXP tauSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_outerproduct(x));
+    Rcpp::traits::input_parameter< Rcpp::List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type omega(omegaSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type tau(tauSEXP);
+    rcpp_result_gen = Rcpp::wrap(mstep_obj(data, z, mean, sigma, theta, omega, gamma, tau));
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpparma_innerproduct
-double rcpparma_innerproduct(const arma::colvec& x);
-RcppExport SEXP _sparsemixmat_rcpparma_innerproduct(SEXP xSEXP) {
+// penalization_M_mat_coord_ascent
+Rcpp::List penalization_M_mat_coord_ascent(arma::cube data, arma::cube data_cent, arma::colvec z, double Nk, arma::mat mu, arma::mat omega, arma::mat gamma, arma::mat penalty_mu, int p, int q, int N);
+RcppExport SEXP _sparsemixmat_penalization_M_mat_coord_ascent(SEXP dataSEXP, SEXP data_centSEXP, SEXP zSEXP, SEXP NkSEXP, SEXP muSEXP, SEXP omegaSEXP, SEXP gammaSEXP, SEXP penalty_muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP NSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_innerproduct(x));
+    Rcpp::traits::input_parameter< arma::cube >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type data_cent(data_centSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type z(zSEXP);
+    Rcpp::traits::input_parameter< double >::type Nk(NkSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type omega(omegaSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type penalty_mu(penalty_muSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type q(qSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(penalization_M_mat_coord_ascent(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N));
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpparma_bothproducts
-Rcpp::List rcpparma_bothproducts(const arma::colvec& x);
-RcppExport SEXP _sparsemixmat_rcpparma_bothproducts(SEXP xSEXP) {
+// mean_w_array
+Rcpp::List mean_w_array(arma::cube data, arma::mat z);
+RcppExport SEXP _sparsemixmat_mean_w_array(SEXP dataSEXP, SEXP zSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_bothproducts(x));
+    Rcpp::traits::input_parameter< arma::cube >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    rcpp_result_gen = Rcpp::wrap(mean_w_array(data, z));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cov_w_array
+Rcpp::List cov_w_array(Rcpp::List data, arma::mat z, arma::cube mean, arma::cube inv, arma::vec Nk, bool pbyp);
+RcppExport SEXP _sparsemixmat_cov_w_array(SEXP dataSEXP, SEXP zSEXP, SEXP meanSEXP, SEXP invSEXP, SEXP NkSEXP, SEXP pbypSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type inv(invSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Nk(NkSEXP);
+    Rcpp::traits::input_parameter< bool >::type pbyp(pbypSEXP);
+    rcpp_result_gen = Rcpp::wrap(cov_w_array(data, z, mean, inv, Nk, pbyp));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_sparsemixmat_rcpparma_hello_world", (DL_FUNC) &_sparsemixmat_rcpparma_hello_world, 0},
-    {"_sparsemixmat_rcpparma_outerproduct", (DL_FUNC) &_sparsemixmat_rcpparma_outerproduct, 1},
-    {"_sparsemixmat_rcpparma_innerproduct", (DL_FUNC) &_sparsemixmat_rcpparma_innerproduct, 1},
-    {"_sparsemixmat_rcpparma_bothproducts", (DL_FUNC) &_sparsemixmat_rcpparma_bothproducts, 1},
+    {"_sparsemixmat_estep_calc", (DL_FUNC) &_sparsemixmat_estep_calc, 10},
+    {"_sparsemixmat_mstep_obj", (DL_FUNC) &_sparsemixmat_mstep_obj, 8},
+    {"_sparsemixmat_penalization_M_mat_coord_ascent", (DL_FUNC) &_sparsemixmat_penalization_M_mat_coord_ascent, 11},
+    {"_sparsemixmat_mean_w_array", (DL_FUNC) &_sparsemixmat_mean_w_array, 2},
+    {"_sparsemixmat_cov_w_array", (DL_FUNC) &_sparsemixmat_cov_w_array, 6},
     {NULL, NULL, 0}
 };
 

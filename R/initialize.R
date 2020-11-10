@@ -1,4 +1,4 @@
-
+#' @export
 initialize <- function(data, type_start, hc_init, omega, gamma, dims)
   # just a wrapper function for mclust::hclass or random initialization
 {

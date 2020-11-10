@@ -10,6 +10,7 @@ using namespace std;
 const double log2pi = std::log(2.0 * M_PI);
 
 // [[Rcpp::depends(RcppArmadillo)]]
+//' @export
 // [[Rcpp::export]]
 Rcpp::List estep_calc(Rcpp::List data, arma::mat z,
                       arma::cube mean, arma::vec tau,

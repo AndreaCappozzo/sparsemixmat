@@ -5,6 +5,7 @@ using namespace Rcpp;
 using namespace std;
 
 
+//' @export
 // [[Rcpp::export]]
 Rcpp::List penalization_M_mat_coord_ascent(arma::cube data,
                              arma::cube data_cent,

@@ -1,4 +1,5 @@
 # M step for inverse covariance matrices parametrization
+#' @export
 mstep_inverse_sparse_M <- function(data,
                                    z,
                                    penalty_omega,

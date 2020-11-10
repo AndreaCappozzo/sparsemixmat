@@ -1,4 +1,4 @@
-
+#' @export
 em_mix_mat <- function(data,
                        K = 2,
                        penalty_omega,
@@ -127,19 +127,18 @@ em_mix_mat <- function(data,
 
   }
 
-  out_mstep <- mstep_inverse_sparse_M(
-    data = data,
-    K=K,
-    z = z,
-    penalty_omega = penalty_omega,
-    penalty_gamma = penalty_gamma,
-    penalty_mu = penalty_mu,
-    gamma = gamma,
-    omega = omega,
-    mu = mu,
-    control = control,
-    dims = dims
-  )
+  out_mstep <-
+    mstep_inverse_sparse_M(
+      data = data,
+      z = z,
+      penalty_omega = penalty_omega,
+      penalty_gamma = penalty_gamma,
+      penalty_mu = penalty_mu,
+      omega = omega,
+      gamma = gamma,
+      control = control,
+      dims = dims
+    )
   
   # Compute bic
   
