@@ -1,41 +1,12 @@
 
-
-source("../example_inverse_sparse_MBC_MICHAEL.R")
-source("R/utils.R")
-source("R/initialize.R")
-source("R/mstep_inverse_with_M_penalized.R")
-
-library(Rcpp)
-library(RcppArmadillo)
-sourceCpp("src/w_array.cpp")
-sourceCpp("src/mstep_obj.cpp")
-sourceCpp("src/estep_calc.cpp")
-sourceCpp("src/penalization_M_mat.cpp")
-
-# FIXME atm the code seems to work: it performs penalized MBC of three-way data, where both the precision matrices omega and gamma and the mean matrices are penalized.
-# Next things to do and to improve:
-# create a wrapper function for model fitting with multiple penalties and K
-
-data <- scale_matrix_data(X)
-data_dim <- dim(data)
-p <- data_dim[1]
-q <- data_dim[2]
-N <- data_dim[3]
-penalty_sigma = 0.1 # FIXME we do not need this
-penalty_theta = 0.1 # FIXME we do not need this
-penalty_omega = 0.1 # 0.1
-penalty_gamma = 0.1 # 0.2
-# penalty_mu = 100
-penalty_mu = 0
-penalize_diag = rep(FALSE, 2)
-control = EM_controls()
-gamma_init <- array(1, dim = c(q, q, K))
-gamma_tmp <- gamma_init
-
-
 em_mix_mat <- function(data,
                        K = 2,
-                       control = EM_controls()){
+                       penalty_omega,
+                       penalty_gamma,
+                       penalty_mu,
+                       penalize_diag,
+                       control = EM_controls()) {
+  
   call <- match.call()
   data_dim <- dim(data)
   p <- data_dim[1]
@@ -74,8 +45,17 @@ em_mix_mat <- function(data,
 
   sigma <- omega <- array(diag(p), dim = c(p, p, K))   # start with identity matrix
   theta <- gamma <- array(diag(q), dim = c(q, q, K))
-  # init <- initialize(data, type_start, hc_init, gamma, dims)
-  init <- initialize(data, type_start = "random", hc_init, sigma, omega, theta, gamma, dims)
+  
+  init <-
+    initialize(
+      data = data,
+      type_start = type_start,
+      hc_init = hc_init,
+      omega = omega,
+      gamma = gamma,
+      dims = dims
+    )
+  
   z <- init$z
   tau <- init$parameters$tau
   mu <- init$parameters$mu
@@ -99,45 +79,19 @@ em_mix_mat <- function(data,
     iter <- iter + 1
 
     # M step -----------
-    # out_mstep <-
-    #   mstep_inverse_sparse_M(
-    #     data = data,
-    #     z = z,
-    #     penalty_omega = penalty_omega,
-    #     penalty_gamma = penalty_gamma,
-    #     penalty_mu = penalty_mu,
-    #     gamma = gamma,
-    #     omega = omega,
-    #     mu = mu,
-    #     control = control,
-    #     dims = dims
-    #   )
-
+    
     out_mstep <-
-      mstep_inverse(
+      mstep_inverse_sparse_M(
         data = data,
         z = z,
         penalty_omega = penalty_omega,
         penalty_gamma = penalty_gamma,
-        sigma = sigma,
+        penalty_mu = penalty_mu,
         omega = omega,
-        theta = theta,
         gamma = gamma,
         control = control,
         dims = dims
       )
-
-    # TODO: remove
-    out_mstep <- list(parameters = list(tau = tau,
-                                        mu = mu,
-                                        sigma = sigma,
-                                        theta = theta,
-                                        omega = omega,
-                                        gamma = gamma),
-                      data_cent = data_cent,
-                      det_sigma = det_sigma,
-                      det_theta = det_theta)
-
 
     tau <- out_mstep$parameters$tau
     mu <- out_mstep$parameters$mu
@@ -175,6 +129,7 @@ em_mix_mat <- function(data,
 
   out_mstep <- mstep_inverse_sparse_M(
     data = data,
+    K=K,
     z = z,
     penalty_omega = penalty_omega,
     penalty_gamma = penalty_gamma,
@@ -185,15 +140,30 @@ em_mix_mat <- function(data,
     control = control,
     dims = dims
   )
-
-  tau <- out_mstep$parameters$tau
-  mu <- out_mstep$parameters$mu
-  sigma <- out_mstep$parameters$sigma
-  theta <- out_mstep$parameters$theta
-  omega <- out_mstep$parameters$omega
-  gamma <- out_mstep$parameters$gamma
-  data_cent <- out_mstep$data_cent
-  det_sigma <- out_mstep$det_sigma
-  det_theta <- out_mstep$det_theta
-
+  
+  # Compute bic
+  
+  n_par_pro <- K - 1
+  n_par_mean <- sum(!out_mstep$mu==0) # non-zero values for mu matrices
+  n_par_omega <-
+    p * K + sum(apply(out_mstep$omega, 3, function(A)
+      A[upper.tri(A)] != 0)) # non-zero values for omega matrices
+  n_par_gamma <-
+    q * K + sum(apply(out_mstep$gamma, 3, function(A)
+      A[upper.tri(A)] != 0)) # non-zero values for gamma matrices
+  
+  bic_final <- 2*loglik-(n_par_pro+n_par_mean+n_par_omega+n_par_gamma)*log(N)
+  
+  OUT <-
+    list(
+      loglik = loglik,
+      loglik_pen = loglik_pen,
+      parameters = out_mstep,
+      z = z,
+      classification = mclust::unmap(z),
+      bic=bic_final,
+      iter = iter
+    )
+  
+  OUT
 }
