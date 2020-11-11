@@ -1,5 +1,16 @@
 #' @export
-initialize <- function(data, type_start, hc_init, omega, gamma, dims)
+initialize <-
+  function(data,
+           type_start,
+           hc_init,
+           omega,
+           gamma,
+           dims,
+           control,
+           penalty_omega,
+           penalty_gamma,
+           penalty_mu
+  )
   # just a wrapper function for mclust::hclass or random initialization
 {
   K <- dims$K

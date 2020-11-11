@@ -63,8 +63,8 @@ mstep_inverse_sparse_M <- function(data,
   
   while ( crit ) {
     iter <- iter + 1
-    start <- if ( iter < 2 & initialization ) "cold" else "warm"
-    # start <- "cold"
+    # start <- if ( iter < 2 & initialization ) "cold" else "warm" FIXME this seems to create issues: need to investigate it
+    start <- "cold"
     
     for ( k in 1:K ) {
       

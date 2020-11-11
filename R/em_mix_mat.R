@@ -14,13 +14,6 @@ em_mix_mat <- function(data,
   N <- data_dim[3]
   dims <- list(p = p, q = q, N = N, K = K)
 
-  # set penalization matrices
-  if (!is.matrix(penalty_sigma)) penalty_sigma <- matrix(penalty_sigma, nrow = p, ncol = p)
-  if (penalize_diag[1] == FALSE) diag(penalty_sigma) <- 0
-  #
-  if (!is.matrix(penalty_theta)) penalty_theta <- matrix(penalty_theta, nrow = q, ncol = q)
-  if (penalize_diag[2] == FALSE) diag(penalty_theta) <- 0
-  #
   if (!is.matrix(penalty_omega)) penalty_omega <- matrix(penalty_omega, nrow = p, ncol = p)
   if (penalize_diag[1] == FALSE) diag(penalty_omega) <- 0
   #
@@ -53,7 +46,11 @@ em_mix_mat <- function(data,
       hc_init = hc_init,
       omega = omega,
       gamma = gamma,
-      dims = dims
+      dims = dims,
+      control=control,
+      penalty_omega=penalty_omega,
+      penalty_gamma=penalty_gamma,
+      penalty_mu=penalty_mu
     )
   
   z <- init$z
@@ -143,24 +140,26 @@ em_mix_mat <- function(data,
   # Compute bic
   
   n_par_pro <- K - 1
-  n_par_mean <- sum(!out_mstep$mu==0) # non-zero values for mu matrices
+  n_par_mean <- sum(!out_mstep$parameters$mu==0) # non-zero values for mu matrices
   n_par_omega <-
-    p * K + sum(apply(out_mstep$omega, 3, function(A)
+    p * K + sum(apply(out_mstep$parameters$omega, 3, function(A)
       A[upper.tri(A)] != 0)) # non-zero values for omega matrices
   n_par_gamma <-
-    q * K + sum(apply(out_mstep$gamma, 3, function(A)
+    q * K + sum(apply(out_mstep$parameters$gamma, 3, function(A)
       A[upper.tri(A)] != 0)) # non-zero values for gamma matrices
   
+  # FIXME do we need to recompute the loglik here? 
   bic_final <- 2*loglik-(n_par_pro+n_par_mean+n_par_omega+n_par_gamma)*log(N)
   
   OUT <-
     list(
       loglik = loglik,
       loglik_pen = loglik_pen,
-      parameters = out_mstep,
+      parameters = out_mstep$parameters,
       z = z,
-      classification = mclust::unmap(z),
+      classification = mclust::map(z),
       bic=bic_final,
+      LLK_trace = LLK, # FIXME to be deleted in the final version
       iter = iter
     )
   
