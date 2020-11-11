@@ -6,7 +6,7 @@ initialize <- function(data, type_start, hc_init, omega, gamma, dims)
   if ( type_start == "hc" ) {
     z <- mclust::unmap( mclust::hclass(hcPairs = hc_init, G = K) )
   } else {
-    tmp <- matrix(runif(dims[[3]]*K), dims[[3]], K)
+    tmp <- matrix(stats::runif(dims[[3]]*K), dims[[3]], K)
     z <- sweep(tmp, MARGIN = 1, rowSums(tmp), FUN = "/")
   }
   tau <- colMeans(z)

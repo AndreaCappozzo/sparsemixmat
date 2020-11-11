@@ -7,10 +7,10 @@
 scale_matrix_data(X)
 }
 \arguments{
-\item{X}{p \times q \times N three-way data}
+\item{X}{p  q  N three-way data}
 }
 \value{
-
+An array of standardized data
 }
 \description{
 Scale and centering of three-way objects

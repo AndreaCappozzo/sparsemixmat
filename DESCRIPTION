@@ -7,8 +7,12 @@ Author: Who wrote it
 Maintainer: Who to complain to <yourfault@somewhere.net>
 Description: More about what it does (maybe more than one line)
 License: What license is it under?
+Encoding: UTF-8
 Imports: 
     Rcpp,
-    mclust
+    mclust,
+    glassoFast,
+    RcppArmadillo,
+    stats
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.1.1
