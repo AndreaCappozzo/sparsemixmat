@@ -18,7 +18,7 @@ initialize <-
     z <- mclust::unmap( mclust::hclass(hcPairs = hc_init, G = K) )
   } else {
     tmp <- matrix(stats::runif(dims[[3]]*K), dims[[3]], K)
-    # z <- sweep(tmp, MARGIN = 1, rowSums(tmp), FUN = "/")
+    z <- sweep(tmp, MARGIN = 1, rowSums(tmp), FUN = "/")
   }
   tau <- colMeans(z)
   ms <-
