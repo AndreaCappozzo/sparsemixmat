@@ -31,8 +31,7 @@ initialize <-
       omega = omega,
       gamma = gamma,
       control = control,
-      dims = dims,
-      initialization = TRUE
+      dims = dims
     )
   return( list(z = z, parameters = ms$parameters,
                data_cent = ms$data_cent,

@@ -8,8 +8,7 @@ mstep_inverse_sparse_M <- function(data,
                                    omega,
                                    gamma, 
                                    control,
-                                   dims,
-                                   initialization = FALSE){
+                                   dims){
   p <- dims$p
   q <- dims$q
   N <- dim(data)[3] # compute N in this way to account for a possible subset in the initialization step
@@ -26,7 +25,7 @@ mstep_inverse_sparse_M <- function(data,
   mu <- out$mean
   data_cent <- out$data_cent
   
-  if((!initialization)|(all(penalty_mu==0))) {
+  if(any(penalty_mu!=0)) {
     # Compute sparse mean matrices via coordinate ascent algorithm
     for (k in 1:K) {
       out_penalized <-

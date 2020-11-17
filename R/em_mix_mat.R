@@ -33,11 +33,12 @@ em_mix_mat <- function(data,
   # initialization of z -----------------------------------------------------------------
   # TODO: remove it and include in main wrapper for model selection
   hc_init <- if ( type_start == "hc" ) {
-    mclust::hcVVV( data = matrix(data, N, p*q, byrow = TRUE) )
+    # mclust::hcVVV( data = matrix(data, N, p*q, byrow = TRUE) )
+    mclust::hcEII( data = matrix(data, N, p*q, byrow = TRUE) )
   } else NULL
 
-  sigma <- omega <- array(diag(p), dim = c(p, p, K))   # start with identity matrix
-  theta <- gamma <- array(diag(q), dim = c(q, q, K))
+  omega <- array(diag(p), dim = c(p, p, K))   # start with identity matrix
+  gamma <- array(diag(q), dim = c(q, q, K))
   
   init <-
     initialize(
