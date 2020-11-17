@@ -26,9 +26,9 @@ em_mix_mat <- function(data,
   # store EM parameters
   tol <- control$tol
   max_iter <- control$max_iter
-  type_start = control$type_start
-  n_subset_start = control$n_subset_start
-  n_random_start = control$n_random_start
+  type_start <-  control$type_start
+  n_subset_start <-  control$n_subset_start
+  n_random_start <-  control$n_random_start
 
   # initialization of z -----------------------------------------------------------------
   # TODO: remove it and include in main wrapper for model selection

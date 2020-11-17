@@ -48,10 +48,12 @@ Rcpp::List penalization_M_mat_coord_ascent(arma::cube data,
   }
 
   for(int l=0; l<p; l++){
+  // for(int l=(p-1); l>=0; l--){
       arma::uvec ind_no_l = find( row_elem != l );
       arma::uvec ind_l = find( row_elem == l );
 
     for(int s=0; s<q; s++){
+     // for(int s=(q-1); s>=0; s--){
         arma::uvec ind_no_s = find( col_elem != s ) ;
         arma::uvec ind_s = find( col_elem == s );
         
