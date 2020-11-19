@@ -76,10 +76,6 @@ mstep_inverse_sparse_M <- function(data,
       
       omega[,,k] <- gl$wi
       
-      # normalize to det(omega) = 1
-      e <- eigen(omega[,,k], only.values = TRUE)$val
-      omega[,,k] <- omega[,,k] / exp( 1/p*sum(log(e)) )
-      
       # estimate sparse gamma
       # scattering matrix needed for graphical lasso problem for theta - corresponds to S in eq (2.1) of \cite{Friedman2008}
       S_theta <- cov_w_array(data_cent[k], z[,k, drop = FALSE], mu[,,k, drop = FALSE],
@@ -88,6 +84,10 @@ mstep_inverse_sparse_M <- function(data,
       gl <- glassoFast::glassoFast(S = S_theta, rho = (2*penalty_gamma)/(Nk[k]*p), start = start, w.init = theta[,,k], wi.init = gamma[,,k])
       
       gamma[,,k] <- gl$wi
+      
+      # normalize to det(gamma) = 1
+      e <- eigen(gamma[,,k], only.values = TRUE)$val
+      gamma[,,k] <- gamma[,,k] / exp( 1/p*sum(log(e)) )
       
       # estimate covariance matrices
       sigma[,,k] <- solve(omega[,,k])
