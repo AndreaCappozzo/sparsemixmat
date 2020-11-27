@@ -35,5 +35,5 @@ initialize <-
     )
   return( list(z = z, parameters = ms$parameters,
                data_cent = ms$data_cent,
-               det_sigma = ms$det_sigma, det_theta = ms$det_theta) )
+               det_sigma = ms$det_sigma, det_psi = ms$det_psi) )
 }

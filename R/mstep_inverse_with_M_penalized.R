@@ -49,13 +49,13 @@ mstep_inverse_sparse_M <- function(data,
   
   # store parameters
   sigma <- array(0, dim = c(p, p, K))
-  theta <- array(0, dim = c(q, q, K))
+  psi <- array(0, dim = c(q, q, K))
   
   # start iterative algorithm
   crit <- TRUE
   iter <- 0
   obj <- obj_prev <- -.Machine$double.xmax
-  obj_vec <- det_sigma <- det_theta <- rep(NA, K)
+  obj_vec <- det_sigma <- det_psi <- rep(NA, K)
   
   # sanity check
   OBJ <- c()
@@ -77,11 +77,11 @@ mstep_inverse_sparse_M <- function(data,
       omega[,,k] <- gl$wi
       
       # estimate sparse gamma
-      # scattering matrix needed for graphical lasso problem for theta - corresponds to S in eq (2.1) of \cite{Friedman2008}
-      S_theta <- cov_w_array(data_cent[k], z[,k, drop = FALSE], mu[,,k, drop = FALSE],
+      # scattering matrix needed for graphical lasso problem for psi - corresponds to S in eq (2.1) of \cite{Friedman2008}
+      S_psi <- cov_w_array(data_cent[k], z[,k, drop = FALSE], mu[,,k, drop = FALSE],
                              omega[,,k, drop = FALSE], Nk[k], pbyp = FALSE)$covmat[,,1]
       
-      gl <- glassoFast::glassoFast(S = S_theta, rho = (2*penalty_gamma)/(Nk[k]*p), start = start, w.init = theta[,,k], wi.init = gamma[,,k])
+      gl <- glassoFast::glassoFast(S = S_psi, rho = (2*penalty_gamma)/(Nk[k]*p), start = start, w.init = psi[,,k], wi.init = gamma[,,k])
       
       gamma[,,k] <- gl$wi
       
@@ -91,15 +91,15 @@ mstep_inverse_sparse_M <- function(data,
       
       # estimate covariance matrices
       sigma[,,k] <- solve(omega[,,k])
-      theta[,,k] <- solve(gamma[,,k])
+      psi[,,k] <- solve(gamma[,,k])
       
       # compute objective function for convergence
       m_obj <- mstep_obj(data_cent[k], z[,k, drop = FALSE], mu[,,k, drop = FALSE],
-                         sigma[,,k, drop = FALSE], theta[,,k, drop = FALSE],
+                         sigma[,,k, drop = FALSE], psi[,,k, drop = FALSE],
                          omega[,,k, drop = FALSE], gamma[,,k, drop = FALSE],tau = tau[k])
       obj_vec[k] <- m_obj$obj
       det_sigma[k] <- m_obj$det_sigma
-      det_theta[k] <- m_obj$det_theta
+      det_psi[k] <- m_obj$det_psi
     }
     
     # check convergence
@@ -118,11 +118,11 @@ mstep_inverse_sparse_M <- function(data,
     list(parameters = list(tau = tau,
                            mu = mu,
                            sigma = sigma,
-                           theta = theta,
+                           psi = psi,
                            omega = omega,
                            gamma = gamma),
          data_cent = data_cent,
          det_sigma = det_sigma,
-         det_theta = det_theta)
+         det_psi = det_psi)
   )
 }

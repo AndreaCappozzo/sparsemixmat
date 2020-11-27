@@ -14,9 +14,9 @@ const double log2pi = std::log(2.0 * M_PI);
 // [[Rcpp::export]]
 Rcpp::List estep_calc(Rcpp::List data, arma::mat z,
                       arma::cube mean, arma::vec tau,
-                      arma::cube sigma, arma::cube theta,
+                      arma::cube sigma, arma::cube psi,
                       arma::cube omega, arma::cube gamma,
-                      arma::vec det_sigma, arma::vec det_theta)
+                      arma::vec det_sigma, arma::vec det_psi)
 {
   int N = z.n_rows;
   int K = z.n_cols;
@@ -35,7 +35,7 @@ Rcpp::List estep_calc(Rcpp::List data, arma::mat z,
     for ( int i = 0; i < N; i++ ) {
       dens(i,k) = ( -0.5*trace(
         omega.slice(k) * data_cent.slice(i) * gamma.slice(k) * data_cent.slice(i).t() ) +
-          ( -q*0.5*det_sigma(k) -p*0.5*det_theta(k) ) +
+          ( -q*0.5*det_sigma(k) -p*0.5*det_psi(k) ) +
           ( -0.5 * p * q * log2pi )
       );
       denspro(i,k) = dens(i,k) + std::log(tau(k));

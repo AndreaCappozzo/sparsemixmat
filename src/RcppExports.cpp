@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // estep_calc
-Rcpp::List estep_calc(Rcpp::List data, arma::mat z, arma::cube mean, arma::vec tau, arma::cube sigma, arma::cube theta, arma::cube omega, arma::cube gamma, arma::vec det_sigma, arma::vec det_theta);
-RcppExport SEXP _sparsemixmat_estep_calc(SEXP dataSEXP, SEXP zSEXP, SEXP meanSEXP, SEXP tauSEXP, SEXP sigmaSEXP, SEXP thetaSEXP, SEXP omegaSEXP, SEXP gammaSEXP, SEXP det_sigmaSEXP, SEXP det_thetaSEXP) {
+Rcpp::List estep_calc(Rcpp::List data, arma::mat z, arma::cube mean, arma::vec tau, arma::cube sigma, arma::cube psi, arma::cube omega, arma::cube gamma, arma::vec det_sigma, arma::vec det_psi);
+RcppExport SEXP _sparsemixmat_estep_calc(SEXP dataSEXP, SEXP zSEXP, SEXP meanSEXP, SEXP tauSEXP, SEXP sigmaSEXP, SEXP psiSEXP, SEXP omegaSEXP, SEXP gammaSEXP, SEXP det_sigmaSEXP, SEXP det_psiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -17,18 +17,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::cube >::type mean(meanSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< arma::cube >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type psi(psiSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type omega(omegaSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type det_sigma(det_sigmaSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type det_theta(det_thetaSEXP);
-    rcpp_result_gen = Rcpp::wrap(estep_calc(data, z, mean, tau, sigma, theta, omega, gamma, det_sigma, det_theta));
+    Rcpp::traits::input_parameter< arma::vec >::type det_psi(det_psiSEXP);
+    rcpp_result_gen = Rcpp::wrap(estep_calc(data, z, mean, tau, sigma, psi, omega, gamma, det_sigma, det_psi));
     return rcpp_result_gen;
 END_RCPP
 }
 // mstep_obj
-Rcpp::List mstep_obj(Rcpp::List data, arma::mat z, arma::cube mean, arma::cube sigma, arma::cube theta, arma::cube omega, arma::cube gamma, arma::vec tau);
-RcppExport SEXP _sparsemixmat_mstep_obj(SEXP dataSEXP, SEXP zSEXP, SEXP meanSEXP, SEXP sigmaSEXP, SEXP thetaSEXP, SEXP omegaSEXP, SEXP gammaSEXP, SEXP tauSEXP) {
+Rcpp::List mstep_obj(Rcpp::List data, arma::mat z, arma::cube mean, arma::cube sigma, arma::cube psi, arma::cube omega, arma::cube gamma, arma::vec tau);
+RcppExport SEXP _sparsemixmat_mstep_obj(SEXP dataSEXP, SEXP zSEXP, SEXP meanSEXP, SEXP sigmaSEXP, SEXP psiSEXP, SEXP omegaSEXP, SEXP gammaSEXP, SEXP tauSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -36,11 +36,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type mean(meanSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< arma::cube >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type psi(psiSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type omega(omegaSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type tau(tauSEXP);
-    rcpp_result_gen = Rcpp::wrap(mstep_obj(data, z, mean, sigma, theta, omega, gamma, tau));
+    rcpp_result_gen = Rcpp::wrap(mstep_obj(data, z, mean, sigma, psi, omega, gamma, tau));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -2,13 +2,13 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @export
-estep_calc <- function(data, z, mean, tau, sigma, theta, omega, gamma, det_sigma, det_theta) {
-    .Call(`_sparsemixmat_estep_calc`, data, z, mean, tau, sigma, theta, omega, gamma, det_sigma, det_theta)
+estep_calc <- function(data, z, mean, tau, sigma, psi, omega, gamma, det_sigma, det_psi) {
+    .Call(`_sparsemixmat_estep_calc`, data, z, mean, tau, sigma, psi, omega, gamma, det_sigma, det_psi)
 }
 
 #' @export
-mstep_obj <- function(data, z, mean, sigma, theta, omega, gamma, tau) {
-    .Call(`_sparsemixmat_mstep_obj`, data, z, mean, sigma, theta, omega, gamma, tau)
+mstep_obj <- function(data, z, mean, sigma, psi, omega, gamma, tau) {
+    .Call(`_sparsemixmat_mstep_obj`, data, z, mean, sigma, psi, omega, gamma, tau)
 }
 
 #' @export

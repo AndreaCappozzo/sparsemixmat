@@ -58,12 +58,12 @@ em_mix_mat <- function(data,
   tau <- init$parameters$tau
   mu <- init$parameters$mu
   sigma <- init$parameters$sigma
-  theta <- init$parameters$theta
+  psi <- init$parameters$psi
   omega <- init$parameters$omega
   gamma <- init$parameters$gamma
   data_cent <- init$data_cent
   det_sigma <- init$det_sigma
-  det_theta <- init$det_theta
+  det_psi <- init$det_psi
 
   # EM ----------------------------------------------------------------------------------
   crit <- TRUE
@@ -94,17 +94,17 @@ em_mix_mat <- function(data,
     tau <- out_mstep$parameters$tau
     mu <- out_mstep$parameters$mu
     sigma <- out_mstep$parameters$sigma
-    theta <- out_mstep$parameters$theta
+    psi <- out_mstep$parameters$psi
     omega <- out_mstep$parameters$omega
     gamma <- out_mstep$parameters$gamma
     data_cent <- out_mstep$data_cent
     det_sigma <- out_mstep$det_sigma
-    det_theta <- out_mstep$det_theta
+    det_psi <- out_mstep$det_psi
 
     # E step -----------
     out_estep <- estep_calc(data_cent, z, mu, tau,
-                            sigma, theta, omega, gamma,
-                            det_sigma, det_theta)
+                            sigma, psi, omega, gamma,
+                            det_sigma, det_psi)
     z <- out_estep$z
 
 
