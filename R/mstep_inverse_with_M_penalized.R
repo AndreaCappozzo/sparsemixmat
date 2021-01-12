@@ -72,27 +72,32 @@ mstep_inverse_sparse_M <- function(data,
       S_sigma <- cov_w_array(data_cent[k], z[,k, drop = FALSE], mu[,,k, drop = FALSE],
                              gamma[,,k, drop = FALSE], Nk[k], pbyp = TRUE)$covmat[,,1]
       
+      if(any(penalty_omega!=0)) {
       gl <- glassoFast::glassoFast(S = S_sigma, rho = (2*penalty_omega)/(Nk[k]*q), start = start, w.init = sigma[,,k], wi.init = omega[,,k])
       
       omega[,,k] <- gl$wi
+      sigma[,,k] <- solve(omega[,,k])
+      } else {
+        sigma[,,k] <- S_sigma
+        omega[,,k] <- solve(S_sigma)
+      }
       
       # estimate sparse gamma
       # scattering matrix needed for graphical lasso problem for psi - corresponds to S in eq (2.1) of \cite{Friedman2008}
       S_psi <- cov_w_array(data_cent[k], z[,k, drop = FALSE], mu[,,k, drop = FALSE],
                              omega[,,k, drop = FALSE], Nk[k], pbyp = FALSE)$covmat[,,1]
-      
+      if(any(penalty_gamma!=0)) {
       gl <- glassoFast::glassoFast(S = S_psi, rho = (2*penalty_gamma)/(Nk[k]*p), start = start, w.init = psi[,,k], wi.init = gamma[,,k])
       
       gamma[,,k] <- gl$wi
+      } else {
+        gamma[,,k] <- solve(S_psi)
+      }
       
       # normalize to det(gamma) = 1
       e <- eigen(gamma[,,k], only.values = TRUE)$val
-      gamma[,,k] <- gamma[,,k] / exp( 1/p*sum(log(e)) )
-      
-      # estimate covariance matrices
-      sigma[,,k] <- solve(omega[,,k])
+      gamma[,,k] <- gamma[,,k] / exp( 1/q*sum(log(e)) )
       psi[,,k] <- solve(gamma[,,k])
-      
       # compute objective function for convergence
       m_obj <- mstep_obj(data_cent[k], z[,k, drop = FALSE], mu[,,k, drop = FALSE],
                          sigma[,,k, drop = FALSE], psi[,,k, drop = FALSE],
