@@ -141,7 +141,7 @@ em_mix_mat <- function(data,
   # Compute bic
   
   n_par_pro <- K - 1
-  n_par_mean <- sum(!out_mstep$parameters$mu==0) # non-zero values for mu matrices
+  n_par_mu <- sum(!out_mstep$parameters$mu==0) # non-zero values for mu matrices
   n_par_omega <-
     p * K + sum(apply(out_mstep$parameters$omega, 3, function(A)
       A[upper.tri(A)] != 0)) # non-zero values for omega matrices
@@ -150,7 +150,7 @@ em_mix_mat <- function(data,
       A[upper.tri(A)] != 0)) # non-zero values for gamma matrices
   
   # FIXME do we need to recompute the loglik here? 
-  bic_final <- 2*loglik-(n_par_pro+n_par_mean+n_par_omega+n_par_gamma)*log(N)
+  bic_final <- 2*loglik-(n_par_pro+n_par_mu+n_par_omega+n_par_gamma)*log(N)
   
   OUT <-
     list(
@@ -160,6 +160,12 @@ em_mix_mat <- function(data,
       z = z,
       classification = mclust::map(z),
       bic=bic_final,
+      n_params = c(
+        pro = n_par_pro,
+        mu = n_par_mu,
+        omega = n_par_omega,
+        gamma = n_par_gamma
+      ),
       LLK_trace = LLK, # FIXME to be deleted in the final version
       iter = iter
     )
