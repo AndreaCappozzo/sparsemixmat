@@ -5,13 +5,15 @@ em_mix_mat <- function(data,
                        penalty_gamma,
                        penalty_mu,
                        penalize_diag,
+                       hc_init,
+                       data_dim,
                        control = EM_controls()) {
   
   call <- match.call()
-  data_dim <- dim(data)
   p <- data_dim[1]
   q <- data_dim[2]
   N <- data_dim[3]
+  
   dims <- list(p = p, q = q, N = N, K = K)
 
   if (!is.matrix(penalty_omega)) penalty_omega <- matrix(penalty_omega, nrow = p, ncol = p)
@@ -31,12 +33,7 @@ em_mix_mat <- function(data,
   n_random_start <-  control$n_random_start
 
   # initialization of z -----------------------------------------------------------------
-  # TODO: remove it and include in main wrapper for model selection
-  hc_init <- if ( type_start == "hc" ) {
-    # mclust::hcVVV( data = matrix(data, N, p*q, byrow = TRUE) )
-    mclust::hcEII( data = matrix(data, N, p*q, byrow = TRUE) )
-  } else NULL
-
+  
   omega <- array(diag(p), dim = c(p, p, K))   # start with identity matrix
   gamma <- array(diag(q), dim = c(q, q, K))
   
@@ -65,7 +62,7 @@ em_mix_mat <- function(data,
   det_sigma <- init$det_sigma
   det_psi <- init$det_psi
 
-  # EM ----------------------------------------------------------------------------------
+  # ME ----------------------------------------------------------------------------------
   crit <- TRUE
   iter <- 0
   loglik <- loglik_prev <- loglik_pen <- loglik_pen_prev <- -.Machine$double.xmax
@@ -156,6 +153,7 @@ em_mix_mat <- function(data,
     list(
       loglik = loglik,
       loglik_pen = loglik_pen,
+      K=K,
       parameters = out_mstep$parameters,
       z = z,
       classification = mclust::map(z),
@@ -166,6 +164,9 @@ em_mix_mat <- function(data,
         omega = n_par_omega,
         gamma = n_par_gamma
       ),
+      penalty = list(penalty_omega = penalty_omega,
+                     penalty_gamma = penalty_gamma,
+                     penalty_mu=penalty_mu),
       LLK_trace = LLK, # FIXME to be deleted in the final version
       iter = iter
     )
