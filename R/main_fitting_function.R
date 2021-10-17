@@ -12,7 +12,7 @@ fit_sparsemixmat <- function(data,
   
   # The best model is the one that maximizes the BIC
   
-  data <- scale_matrix_data(data) # work with standardized data
+  # data <- scale_matrix_data(data) # work with standardized data
   
   call <- match.call()
   data_dim <- dim(data)

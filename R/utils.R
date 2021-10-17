@@ -19,12 +19,20 @@ EM_controls <- function(tol = c(1e-05, sqrt(.Machine$double.eps)),
 #'
 #' @return An array of standardized data
 #' @export
-#'
-scale_matrix_data <- function(X){
+scale_matrix_data <- function(X, scale=TRUE){
 
-  mean_X <- apply(X, c(1,2), mean) # p \item q mean matrix
-  sd_X <- apply(X, c(1,2), stats::sd) # p \item q st dev matrix
-
-  array(apply(X, 3, function(A) (A-mean_X)/sd_X), dim = dim(X))
+  mean_X <- apply(X, c(1, 2), mean) # p \item q mean matrix
+  
+  X_cent <- array(apply(X, 3, function(A)
+    (A - mean_X)), dim = dim(X))
+  
+  if (scale == FALSE) {
+    return(X_cent)
+  }
+  
+  sd_X <- apply(X, c(1, 2), stats::sd) # p \item q st dev matrix
+  
+  array(apply(X_cent, 3, function(A)
+    (A) / sd_X), dim = dim(X))
 
 }

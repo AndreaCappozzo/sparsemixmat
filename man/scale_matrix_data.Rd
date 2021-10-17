@@ -4,7 +4,7 @@
 \alias{scale_matrix_data}
 \title{Scale and centering of three-way objects}
 \usage{
-scale_matrix_data(X)
+scale_matrix_data(X, scale = TRUE)
 }
 \arguments{
 \item{X}{p  q  N three-way data}
