@@ -7,7 +7,7 @@ using namespace std;
 
 //' @export
 // [[Rcpp::export]]
-Rcpp::List penalization_M_mat_coord_ascent(arma::cube data,
+Rcpp::List penalization_M_mat_lasso(arma::cube data,
                              arma::cube data_cent,
                              arma::colvec z,
                              double Nk,
@@ -100,4 +100,79 @@ Rcpp::List penalization_M_mat_coord_ascent(arma::cube data,
   // return mu_penalized;
   return Rcpp::List::create(Named("mu_penalized") = mu_penalized,
                              Named("data_cent_penalized") = data_cent);
+}
+
+
+//' @export
+// [[Rcpp::export]]
+Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
+                                           arma::cube data_cent,
+                                           arma::colvec z,
+                                           double Nk,
+                                           arma::mat mu,
+                                           arma::mat omega,
+                                           arma::mat gamma,
+                                           arma::colvec penalty_mu,
+                                           int p,
+                                           int q,
+                                           int N) {
+  
+  // Containers
+  arma::mat mu_penalized=mu;
+  arma::mat sum_X(p,q);
+  arma::rowvec b_l(q); 
+  arma::mat second_addend(p,q);
+  arma::mat pinv_omega_lth_col(p,1);
+  
+  //  Fill containers
+  
+  sum_X.zeros();
+  
+  // Vectors of indexes
+  arma::colvec row_elem = arma::regspace(0, 1, p-1);
+  arma::uvec p_row = find( row_elem <= p );
+  
+  // weighted sum of X
+  for(int i=0; i<N; i++){
+    sum_X=sum_X+data.slice(i)*z(i);
+  }
+  
+  arma::mat first_addend = (omega*sum_X)/Nk;
+    
+  for(int l=0; l<p; l++){
+
+    arma::uvec ind_l = find( row_elem == l );
+    
+    double norm_lth_row = norm(mu.rows(ind_l), 2);
+      // STEP 1: check if the l-th row shall be set to 0
+      
+      if(norm_lth_row<=penalty_mu(l)){
+        mu_penalized.rows(ind_l)*= 0;
+      } else {
+      // STEP 2: for those rows that are not set to 0, I compute the penalized estimation
+  
+  second_addend.zeros();
+  for(int r=0; r<p; r++){
+    
+    if (r==l) {
+      continue;
+    }
+    arma::uvec ind_r = find( row_elem == r );
+    second_addend+=omega.cols(ind_r)* mu_penalized.rows(ind_r);
+  }
+  pinv_omega_lth_col = pinv(omega.cols(ind_l).t());
+  b_l = pinv_omega_lth_col.t()*(first_addend-second_addend);
+
+      // STEP 3: Update rows in mu as per coordinate ascent algorithm
+      mu_penalized.rows(ind_l) =1/(1+penalty_mu(l)/(norm_lth_row-penalty_mu(l)))*b_l;
+      
+    }
+  }
+  // STEP 4: Update data_cent, as per coordinate ascent algorithm
+  for(int i=0; i<N; i++){
+    data_cent.slice(i)=data.slice(i)-mu_penalized;
+  }
+  
+  return Rcpp::List::create(Named("mu_penalized") = mu_penalized,
+                            Named("data_cent_penalized") = data_cent);
 }

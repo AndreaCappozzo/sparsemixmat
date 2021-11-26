@@ -36,3 +36,19 @@ scale_matrix_data <- function(X, scale=TRUE){
     (A) / sd_X), dim = dim(X))
 
 }
+
+
+penalization_M_mat_coord_ascent_f <- function(type_penalty_mu) {
+  switch(type_penalty_mu,
+         "lasso" = penalization_M_mat_lasso,
+         "group-lasso" = penalization_M_mat_group_lasso)
+}
+
+pen_mu_f <- function(type_penalty_mu,mu,penalty_mu){
+  switch(type_penalty_mu,
+         "lasso" = sum( sweep(abs(mu), c(1,2), penalty_mu, "*") ),
+         "group-lasso" = sum(sweep(sapply(1:K, function(k)
+           apply(mu[, , k], 1, norm, type = "2")),
+           MARGIN = 1,
+           STATS = penalty_mu,FUN = "*")))
+}

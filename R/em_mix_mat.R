@@ -7,6 +7,8 @@ em_mix_mat <- function(data,
                        penalize_diag,
                        hc_init,
                        data_dim,
+                       type_penalty_mu,
+                       penalization_M_mat_coord_ascent,
                        control = EM_controls()) {
   
   call <- match.call()
@@ -22,8 +24,12 @@ em_mix_mat <- function(data,
   if (!is.matrix(penalty_gamma)) penalty_gamma <- matrix(penalty_gamma, nrow = q, ncol = q)
   if (penalize_diag[2] == FALSE) diag(penalty_gamma) <- 0
 
-  # mu
-  if (!is.matrix(penalty_mu)) penalty_mu <- matrix(penalty_mu, nrow = p, ncol = q)
+  # mu (varies depending on lasso or group-lasso)
+  if (!is.matrix(penalty_mu) & type_penalty_mu == "lasso"){
+    penalty_mu <- matrix(penalty_mu, nrow = p, ncol = q)
+  } else if (!is.matrix(penalty_mu) & type_penalty_mu == "group-lasso") {
+    penalty_mu <- rep(penalty_mu,p)
+  }
 
   # store EM parameters
   tol <- control$tol
@@ -48,7 +54,8 @@ em_mix_mat <- function(data,
       control=control,
       penalty_omega=penalty_omega,
       penalty_gamma=penalty_gamma,
-      penalty_mu=penalty_mu
+      penalty_mu=penalty_mu,
+      penalization_M_mat_coord_ascent=penalization_M_mat_coord_ascent
     )
   
   z <- init$z
@@ -85,7 +92,8 @@ em_mix_mat <- function(data,
         omega = omega,
         gamma = gamma,
         control = control,
-        dims = dims
+        dims = dims,
+        penalization_M_mat_coord_ascent = penalization_M_mat_coord_ascent
       )
 
     tau <- out_mstep$parameters$tau
@@ -111,7 +119,12 @@ em_mix_mat <- function(data,
 
     pen_value_omega <- sum( sweep(abs(omega), c(1,2), penalty_omega, "*") )
     pen_value_gamma <- sum( sweep(abs(gamma), c(1,2), penalty_gamma, "*") )
-    pen_value_mu <- sum( sweep(abs(mu), c(1,2), penalty_mu, "*") )
+    pen_value_mu <-
+      pen_mu_f(
+        type_penalty_mu = type_penalty_mu,
+        mu = mu,
+        penalty_mu = penalty_mu
+      )
 
     loglik_pen <- loglik - (pen_value_omega + pen_value_gamma + pen_value_mu)
     err <- abs(loglik_pen - loglik_pen_prev) / (1 + abs(loglik_pen))
@@ -132,7 +145,8 @@ em_mix_mat <- function(data,
       omega = omega,
       gamma = gamma,
       control = control,
-      dims = dims
+      dims = dims,
+      penalization_M_mat_coord_ascent = penalization_M_mat_coord_ascent
     )
   
   # Compute bic
@@ -167,6 +181,7 @@ em_mix_mat <- function(data,
       penalty = list(penalty_omega = penalty_omega,
                      penalty_gamma = penalty_gamma,
                      penalty_mu=penalty_mu),
+      type_penalty_mu=type_penalty_mu,
       LLK_trace = LLK, # FIXME to be deleted in the final version
       iter = iter
     )

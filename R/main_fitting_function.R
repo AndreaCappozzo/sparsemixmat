@@ -6,6 +6,7 @@ fit_sparsemixmat <- function(data,
                          penalty_omega,
                          penalty_gamma,
                          penalty_mu,
+                         type_penalty_mu = c("lasso", "group-lasso"),
                          penalize_diag,
                          control = EM_controls(),
                          verbose = interactive()) {
@@ -13,6 +14,8 @@ fit_sparsemixmat <- function(data,
   # The best model is the one that maximizes the BIC
   
   # data <- scale_matrix_data(data) # work with standardized data
+  # Depending on the penalty type for M_k, I define two distinct functions for updating M and for computing the objective function
+  penalization_M_mat_coord_ascent <- penalization_M_mat_coord_ascent_f(type_penalty_mu = type_penalty_mu)
   
   call <- match.call()
   data_dim <- dim(data)
@@ -31,6 +34,7 @@ fit_sparsemixmat <- function(data,
   
   models_container <-
     vector(mode = "list", length = n_different_models)
+  
   if (verbose) {
     cat("Fitting:\n")
     utils::flush.console()
@@ -59,7 +63,9 @@ fit_sparsemixmat <- function(data,
         penalize_diag = penalize_diag,
         hc_init = hc_init,
         control = control,
-        data_dim=data_dim
+        data_dim=data_dim,
+        type_penalty_mu=type_penalty_mu,
+        penalization_M_mat_coord_ascent=penalization_M_mat_coord_ascent
       )
     
     if (verbose) {

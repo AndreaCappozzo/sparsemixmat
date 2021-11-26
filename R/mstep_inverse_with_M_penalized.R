@@ -8,6 +8,7 @@ mstep_inverse_sparse_M <- function(data,
                                    omega,
                                    gamma, 
                                    control,
+                                   penalization_M_mat_coord_ascent,
                                    dims){
   p <- dims$p
   q <- dims$q
@@ -26,7 +27,7 @@ mstep_inverse_sparse_M <- function(data,
   data_cent <- out$data_cent
   
   if(any(penalty_mu!=0)) {
-    # Compute sparse mean matrices via coordinate ascent algorithm
+    # Compute sparse mean matrices via coordinate ascent algorithm (either via lasso or group-lasso penalty)
     for (k in 1:K) {
       out_penalized <-
         penalization_M_mat_coord_ascent(

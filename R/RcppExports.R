@@ -12,8 +12,13 @@ mstep_obj <- function(data, z, mean, sigma, psi, omega, gamma, tau) {
 }
 
 #' @export
-penalization_M_mat_coord_ascent <- function(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N) {
-    .Call(`_sparsemixmat_penalization_M_mat_coord_ascent`, data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N)
+penalization_M_mat_lasso <- function(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N) {
+    .Call(`_sparsemixmat_penalization_M_mat_lasso`, data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N)
+}
+
+#' @export
+penalization_M_mat_group_lasso <- function(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N) {
+    .Call(`_sparsemixmat_penalization_M_mat_group_lasso`, data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N)
 }
 
 #' @export

@@ -9,7 +9,8 @@ initialize <-
            control,
            penalty_omega,
            penalty_gamma,
-           penalty_mu
+           penalty_mu,
+           penalization_M_mat_coord_ascent
   )
   # just a wrapper function for mclust::hclass or random initialization
 {
@@ -31,7 +32,8 @@ initialize <-
       omega = omega,
       gamma = gamma,
       control = control,
-      dims = dims
+      dims = dims,
+      penalization_M_mat_coord_ascent=penalization_M_mat_coord_ascent
     )
   return( list(z = z, parameters = ms$parameters,
                data_cent = ms$data_cent,
