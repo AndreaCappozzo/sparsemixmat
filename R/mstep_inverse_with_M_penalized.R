@@ -74,7 +74,15 @@ mstep_inverse_sparse_M <- function(data,
                              gamma[,,k, drop = FALSE], Nk[k], pbyp = TRUE)$covmat[,,1]
       
       if(any(penalty_omega!=0)) {
-      gl <- glassoFast::glassoFast(S = S_sigma, rho = (2*penalty_omega)/(Nk[k]*q), start = start, w.init = sigma[,,k], wi.init = omega[,,k])
+        gl <-
+          glassoFast::glassoFast(
+            S = S_sigma,
+            rho = (2 * penalty_omega) / (Nk[k] * q),
+            start = start,
+            w.init = sigma[, , k],
+            wi.init = omega[, , k],
+            thr = 1e-8
+          )
       
       omega[,,k] <- gl$wi
       sigma[,,k] <- solve(omega[,,k])
@@ -88,7 +96,15 @@ mstep_inverse_sparse_M <- function(data,
       S_psi <- cov_w_array(data_cent[k], z[,k, drop = FALSE], mu[,,k, drop = FALSE],
                              omega[,,k, drop = FALSE], Nk[k], pbyp = FALSE)$covmat[,,1]
       if(any(penalty_gamma!=0)) {
-      gl <- glassoFast::glassoFast(S = S_psi, rho = (2*penalty_gamma)/(Nk[k]*p), start = start, w.init = psi[,,k], wi.init = gamma[,,k])
+        gl <-
+          glassoFast::glassoFast(
+            S = S_psi,
+            rho = (2 * penalty_gamma) / (Nk[k] * p),
+            start = start,
+            w.init = psi[, , k],
+            wi.init = gamma[, , k],
+            thr = 1e-8
+          )
       
       gamma[,,k] <- gl$wi
       } else {

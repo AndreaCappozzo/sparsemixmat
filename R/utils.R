@@ -38,10 +38,55 @@ scale_matrix_data <- function(X, scale=TRUE){
 }
 
 
+penalization_M_mat_group_lasso_no_cpp <- function(data = data,
+                                                  data_cent,
+                                                  z ,
+                                                  Nk,
+                                                  mu,
+                                                  # I initialize it with the sample mean at the current iteration
+                                                  omega,
+                                                  gamma,
+                                                  penalty_mu,
+                                                  p = p,
+                                                  q = q,
+                                                  N = N) {
+  sum_X <- matrix(0, nrow = p, ncol = q)
+  mu_penalized <- mu
+  
+  for (i in 1:N) {
+    sum_X <- sum_X + z[i] * data[, , i]
+  }
+  
+  second_addend <- (omega %*% sum_X) / Nk
+  norm_mu_sample_k <-
+    apply(mu, 1, function(b)
+      sqrt(sum(b ^ 2)))
+  for (l in 1:p) {
+    if (norm_mu_sample_k[l] < penalty_mu[l]) {
+      mu_penalized[l,] <- 0
+    } else{
+      first_addend_list <-
+        lapply(1:p, function(r)
+          omega[, r] %o% mu_penalized[r, ])
+      first_addend <- Reduce(f = "+", x = first_addend_list[-l])
+      b_l <-
+        MASS::ginv(omega[, l]) %*% (-first_addend + second_addend)
+      mu_penalized[l, ] <-
+        (1 - penalty_mu[l] / (sqrt(sum(b_l) ^ 2))) * b_l
+    }
+  }
+  
+  for (i in 1:N) {
+    data_cent[,,i] <- data[,,i]-mu_penalized
+  }
+  list(mu_penalized=mu_penalized, data_cent_penalized=data_cent)
+}
+
 penalization_M_mat_coord_ascent_f <- function(type_penalty_mu) {
   switch(type_penalty_mu,
          "lasso" = penalization_M_mat_lasso,
-         "group-lasso" = penalization_M_mat_group_lasso)
+         # "group-lasso" = penalization_M_mat_group_lasso)
+         "group-lasso" = penalization_M_mat_group_lasso_no_cpp)
 }
 
 pen_mu_f <- function(type_penalty_mu,mu,penalty_mu){

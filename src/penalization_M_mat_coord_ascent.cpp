@@ -162,9 +162,11 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
   }
   pinv_omega_lth_col = pinv(omega.cols(ind_l).t());
   b_l = pinv_omega_lth_col.t()*(first_addend-second_addend);
+  double norm_b_l = norm(b_l, 2);
 
       // STEP 3: Update rows in mu as per coordinate ascent algorithm
-      mu_penalized.rows(ind_l) =1/(1+penalty_mu(l)/(norm_lth_row-penalty_mu(l)))*b_l;
+      // mu_penalized.rows(ind_l) =1/(1+penalty_mu(l)/(norm_lth_row-penalty_mu(l)))*b_l;
+      mu_penalized.rows(ind_l) =(1-penalty_mu(l)/norm_b_l)*b_l;
       
     }
   }
@@ -173,6 +175,12 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
     data_cent.slice(i)=data.slice(i)-mu_penalized;
   }
   
+  // return mu_penalized;
   return Rcpp::List::create(Named("mu_penalized") = mu_penalized,
                             Named("data_cent_penalized") = data_cent);
+  
+  // return Rcpp::List::create(Named("mu_penalized") = mu_penalized,
+  //                           Named("data_cent_penalized") = data_cent,
+  //                             Named("first_addend") = first_addend,
+  //                             Named("second_addend") = second_addend);
 }
