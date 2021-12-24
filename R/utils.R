@@ -57,7 +57,7 @@ penalization_M_mat_group_lasso_no_cpp <- function(data = data,
     sum_X <- sum_X + z[i] * data[, , i]
   }
   
-  second_addend <- (omega %*% sum_X) / Nk
+  first_addend <- (omega %*% sum_X) / Nk
   norm_mu_sample_k <-
     apply(mu, 1, function(b)
       sqrt(sum(b ^ 2)))
@@ -65,12 +65,12 @@ penalization_M_mat_group_lasso_no_cpp <- function(data = data,
     if (norm_mu_sample_k[l] < penalty_mu[l]) {
       mu_penalized[l,] <- 0
     } else{
-      first_addend_list <-
-        lapply(1:p, function(r)
+      second_addend_list <-
+        lapply(setdiff(1:p,l), function(r)
           omega[, r] %o% mu_penalized[r, ])
-      first_addend <- Reduce(f = "+", x = first_addend_list[-l])
+      second_addend <- Reduce(f = "+", x = second_addend_list)
       b_l <-
-        MASS::ginv(omega[, l]) %*% (-first_addend + second_addend)
+        MASS::ginv(omega[, l]) %*% (first_addend -second_addend)
       mu_penalized[l, ] <-
         (1 - penalty_mu[l] / (sqrt(sum(b_l) ^ 2))) * b_l
     }
