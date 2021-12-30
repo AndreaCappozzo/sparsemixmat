@@ -41,7 +41,9 @@ mstep_inverse_sparse_M <- function(data,
           penalty_mu = penalty_mu,
           p = p,
           q = q,
-          N = N
+          N = N,
+          CD_tol = tol,
+          CD_max_iter = max_iter
         )
       mu[, , k] <- out_penalized$mu_penalized
       data_cent[[k]] <- out_penalized$data_cent_penalized

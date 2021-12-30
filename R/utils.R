@@ -49,7 +49,9 @@ penalization_M_mat_group_lasso_no_cpp <- function(data = data,
                                                   penalty_mu,
                                                   p = p,
                                                   q = q,
-                                                  N = N) {
+                                                  N = N,
+                                                  CD_tol,
+                                                  CD_max_iter) {
   sum_X <- matrix(0, nrow = p, ncol = q)
   mu_penalized <- mu
   
@@ -58,22 +60,47 @@ penalization_M_mat_group_lasso_no_cpp <- function(data = data,
   }
   
   first_addend <- (omega %*% sum_X) / Nk
-  norm_mu_sample_k <-
-    apply(mu, 1, function(b)
-      sqrt(sum(b ^ 2)))
-  for (l in 1:p) {
-    if (norm_mu_sample_k[l] < penalty_mu[l]) {
-      mu_penalized[l,] <- 0
-    } else{
+  ginv_omega <- lapply(1:p, function(l) MASS::ginv(omega[, l])) # Done it once so it needs not be replicated at each iteration in the while loop
+  
+  crit_Q_M <- TRUE
+  iter_Q_M <- 0
+  Q_M <- Q_M_prev <-  -.Machine$double.xmax
+  # sanity check
+  Q_M_trace <- c()
+  
+  while (crit_Q_M) {
+    
+    iter_Q_M <- iter_Q_M + 1
+    
+    for (l in 1:p) {
       second_addend_list <-
-        lapply(setdiff(1:p,l), function(r)
-          omega[, r] %o% mu_penalized[r, ])
+        lapply(setdiff(1:p, l), function(r)
+          omega[, r] %o% mu_penalized[r,])
       second_addend <- Reduce(f = "+", x = second_addend_list)
       b_l <-
-        MASS::ginv(omega[, l]) %*% (first_addend -second_addend)
-      mu_penalized[l, ] <-
-        (1 - penalty_mu[l] / (sqrt(sum(b_l) ^ 2))) * b_l
+        ginv_omega[[l]] %*% (first_addend - second_addend)
+      norm2_b_l <- norm(b_l, type = "2")
+      
+      if (norm2_b_l < penalty_mu[l]) {
+        mu_penalized[l, ] <- 0
+      } else{
+        mu_penalized[l,] <-
+          (1 - exp(log(penalty_mu[l]) - log(norm2_b_l))) * b_l
+        # mu_penalized[l, ] <- (1 - penalty_mu[l] /norm(b_l,type = "2")) * b_l
+        # (1 - penalty_mu[l] /sqrt(sum(b_l)^2)) * b_l # WRONG
+      }
     }
+    
+    Q_M <-
+      sum(diag(omega %*% sum_X %*% gamma %*% t(mu_penalized))) -
+      Nk / 2 * sum(diag(omega %*%mu_penalized %*% gamma %*% t(mu_penalized))) -
+      sum(penalty_mu * apply(mu_penalized, 1, norm,"2"))
+    
+    err_Q_M <- abs(Q_M - Q_M_prev) / (1 + abs(Q_M))
+    Q_M_prev <- Q_M
+    Q_M_trace <- c(Q_M_trace, Q_M)
+    
+    crit_Q_M <- (err_Q_M > CD_tol & iter_Q_M < CD_max_iter) 
   }
   
   for (i in 1:N) {

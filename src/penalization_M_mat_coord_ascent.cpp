@@ -17,7 +17,9 @@ Rcpp::List penalization_M_mat_lasso(arma::cube data,
                              arma::mat penalty_mu,
                              int p,
                              int q,
-                             int N) {
+                             int N,
+                             double CD_tol,
+                             int CD_max_iter) {
   
   // Containers
   arma::mat mu_penalized=mu;
