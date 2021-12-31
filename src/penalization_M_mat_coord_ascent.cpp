@@ -108,6 +108,7 @@ Rcpp::List penalization_M_mat_lasso(arma::cube data,
       
       }
     }
+    
     double pen_Q_M = accu(abs(mu)%penalty_mu);
     Q_M = arma::trace(omega*sum_X * gamma * mu.t())- Nk*.5*arma::trace(omega*mu*gamma*mu.t())-pen_Q_M;
     err_Q_M = abs(Q_M - Q_M_prev) / (1 + abs(Q_M));
@@ -135,14 +136,16 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
                                            arma::colvec penalty_mu,
                                            int p,
                                            int q,
-                                           int N) {
+                                           int N,
+                                           double CD_tol,
+                                           int CD_max_iter) {
   
   // Containers
   arma::mat mu_penalized=mu;
   arma::mat sum_X(p,q);
   arma::rowvec b_l(q); 
   arma::mat second_addend(p,q);
-  arma::mat pinv_omega_lth_col(p,1);
+  arma::mat pinv_omega_lth_col_mat(p,p);
   
   //  Fill containers
   
@@ -151,56 +154,84 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
   // Vectors of indexes
   arma::colvec row_elem = arma::regspace(0, 1, p-1);
   arma::uvec p_row = find( row_elem <= p );
+  // Quantities that will remain fixed throughout the block coord descent algorithm
   
   // weighted sum of X
   for(int i=0; i<N; i++){
     sum_X=sum_X+data.slice(i)*z(i);
   }
   
+  
+  // Row-wise Moore Penrose inverse of Omega
+  for(int l=0; l<p; l++){
+    arma::uvec ind_l = find( row_elem == l );
+    pinv_omega_lth_col_mat.rows(ind_l) = pinv(omega.cols(ind_l).t()).t();
+  }
+  
+  // First addend of the update
   arma::mat first_addend = (omega*sum_X)/Nk;
     
-  for(int l=0; l<p; l++){
-
-    arma::uvec ind_l = find( row_elem == l );
+    // MAIN COORDINATE ASCENT ALGORITHM
+    bool crit_Q_M =true;
+    int iter_Q_M = 0;
+    double err_Q_M=0;
+    double Q_M =-10000000;
+    double Q_M_prev =-10000000;
     
-    double norm_lth_row = norm(mu.rows(ind_l), 2);
-      // STEP 1: check if the l-th row shall be set to 0
+    while(crit_Q_M){
+      iter_Q_M += 1;
+      double pen_Q_M=0 ;
       
-      if(norm_lth_row<=penalty_mu(l)){
+      for(int l=0; l<p; l++){
+
+        arma::uvec ind_l = find( row_elem == l );
+    
+        // double norm_lth_row = norm(mu.rows(ind_l), 2);
+      
+  
+      second_addend.zeros();
+        
+      for(int r=0; r<p; r++){
+    
+          if (r==l) {
+            continue;
+          }
+        arma::uvec ind_r = find( row_elem == r );
+        second_addend+=omega.cols(ind_r)* mu_penalized.rows(ind_r);
+    }
+  
+      b_l = pinv_omega_lth_col_mat.rows(ind_l)*(first_addend-second_addend);
+      double norm_b_l = norm(b_l, 2);
+  
+  // STEP 1: check if the l-th row shall be set to 0
+  
+      if(norm_b_l<=penalty_mu(l)){
         mu_penalized.rows(ind_l)*= 0;
       } else {
-      // STEP 2: for those rows that are not set to 0, I compute the penalized estimation
-  
-  second_addend.zeros();
-  for(int r=0; r<p; r++){
-    
-    if (r==l) {
-      continue;
-    }
-    arma::uvec ind_r = find( row_elem == r );
-    second_addend+=omega.cols(ind_r)* mu_penalized.rows(ind_r);
-  }
-  pinv_omega_lth_col = pinv(omega.cols(ind_l).t());
-  b_l = pinv_omega_lth_col.t()*(first_addend-second_addend);
-  double norm_b_l = norm(b_l, 2);
-
-      // STEP 3: Update rows in mu as per coordinate ascent algorithm
+      // STEP 2: Update rows in mu as per coordinate ascent algorithm
       // mu_penalized.rows(ind_l) =1/(1+penalty_mu(l)/(norm_lth_row-penalty_mu(l)))*b_l;
-      mu_penalized.rows(ind_l) =(1-penalty_mu(l)/norm_b_l)*b_l;
-      
+        mu_penalized.rows(ind_l) =(1-penalty_mu(l)/norm_b_l)*b_l;
+      }
+      pen_Q_M+= norm(mu_penalized.rows(ind_l), 2)*as_scalar(penalty_mu(l));
     }
+  
+  
+  Q_M = arma::trace(omega*sum_X * gamma * mu_penalized.t())- Nk*.5*arma::trace(omega*mu_penalized*gamma*mu_penalized.t())-pen_Q_M;
+  err_Q_M = abs(Q_M - Q_M_prev) / (1 + abs(Q_M));
+  Q_M_prev = Q_M;
+  crit_Q_M = ((err_Q_M > CD_tol) & (iter_Q_M < CD_max_iter));
   }
+    
   // STEP 4: Update data_cent, as per coordinate ascent algorithm
   for(int i=0; i<N; i++){
     data_cent.slice(i)=data.slice(i)-mu_penalized;
   }
   
-  // return mu_penalized;
+  return mu_penalized;
   return Rcpp::List::create(Named("mu_penalized") = mu_penalized,
                             Named("data_cent_penalized") = data_cent);
   
   // return Rcpp::List::create(Named("mu_penalized") = mu_penalized,
   //                           Named("data_cent_penalized") = data_cent,
-  //                             Named("first_addend") = first_addend,
-  //                             Named("second_addend") = second_addend);
+  //                             Named("Q_M") = Q_M);
 }

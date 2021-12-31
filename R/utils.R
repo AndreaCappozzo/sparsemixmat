@@ -106,14 +106,20 @@ penalization_M_mat_group_lasso_no_cpp <- function(data = data,
   for (i in 1:N) {
     data_cent[,,i] <- data[,,i]-mu_penalized
   }
-  list(mu_penalized=mu_penalized, data_cent_penalized=data_cent)
+  # list(mu_penalized=mu_penalized, data_cent_penalized=data_cent)
+  list(
+    mu_penalized = mu_penalized,
+    data_cent_penalized = data_cent,
+    Q_M_trace = Q_M_trace,
+    Q_M = Q_M
+  )
 }
 
 penalization_M_mat_coord_ascent_f <- function(type_penalty_mu) {
   switch(type_penalty_mu,
          "lasso" = penalization_M_mat_lasso,
-         # "group-lasso" = penalization_M_mat_group_lasso)
-         "group-lasso" = penalization_M_mat_group_lasso_no_cpp)
+         "group-lasso" = penalization_M_mat_group_lasso)
+         # "group-lasso" = penalization_M_mat_group_lasso_no_cpp)
 }
 
 pen_mu_f <- function(type_penalty_mu,mu,penalty_mu){
