@@ -227,7 +227,7 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
     data_cent.slice(i)=data.slice(i)-mu_penalized;
   }
   
-  return mu_penalized;
+  // return mu_penalized;
   return Rcpp::List::create(Named("mu_penalized") = mu_penalized,
                             Named("data_cent_penalized") = data_cent);
   
