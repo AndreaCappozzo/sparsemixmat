@@ -50,8 +50,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // penalization_M_mat_lasso
-Rcpp::List penalization_M_mat_lasso(arma::cube data, arma::cube data_cent, arma::colvec z, double Nk, arma::mat mu, arma::mat omega, arma::mat gamma, arma::mat penalty_mu, int p, int q, int N);
-RcppExport SEXP _sparsemixmat_penalization_M_mat_lasso(SEXP dataSEXP, SEXP data_centSEXP, SEXP zSEXP, SEXP NkSEXP, SEXP muSEXP, SEXP omegaSEXP, SEXP gammaSEXP, SEXP penalty_muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP NSEXP) {
+Rcpp::List penalization_M_mat_lasso(arma::cube data, arma::cube data_cent, arma::colvec z, double Nk, arma::mat mu, arma::mat omega, arma::mat gamma, arma::mat penalty_mu, int p, int q, int N, double CD_tol, int CD_max_iter, double step_width_PGD);
+RcppExport SEXP _sparsemixmat_penalization_M_mat_lasso(SEXP dataSEXP, SEXP data_centSEXP, SEXP zSEXP, SEXP NkSEXP, SEXP muSEXP, SEXP omegaSEXP, SEXP gammaSEXP, SEXP penalty_muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP NSEXP, SEXP CD_tolSEXP, SEXP CD_max_iterSEXP, SEXP step_width_PGDSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -66,13 +66,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type p(pSEXP);
     Rcpp::traits::input_parameter< int >::type q(qSEXP);
     Rcpp::traits::input_parameter< int >::type N(NSEXP);
-    rcpp_result_gen = Rcpp::wrap(penalization_M_mat_lasso(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N));
+    Rcpp::traits::input_parameter< double >::type CD_tol(CD_tolSEXP);
+    Rcpp::traits::input_parameter< int >::type CD_max_iter(CD_max_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type step_width_PGD(step_width_PGDSEXP);
+    rcpp_result_gen = Rcpp::wrap(penalization_M_mat_lasso(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N, CD_tol, CD_max_iter, step_width_PGD));
     return rcpp_result_gen;
 END_RCPP
 }
 // penalization_M_mat_group_lasso
-Rcpp::List penalization_M_mat_group_lasso(arma::cube data, arma::cube data_cent, arma::colvec z, double Nk, arma::mat mu, arma::mat omega, arma::mat gamma, arma::colvec penalty_mu, int p, int q, int N);
-RcppExport SEXP _sparsemixmat_penalization_M_mat_group_lasso(SEXP dataSEXP, SEXP data_centSEXP, SEXP zSEXP, SEXP NkSEXP, SEXP muSEXP, SEXP omegaSEXP, SEXP gammaSEXP, SEXP penalty_muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP NSEXP) {
+Rcpp::List penalization_M_mat_group_lasso(arma::cube data, arma::cube data_cent, arma::colvec z, double Nk, arma::mat mu, arma::mat omega, arma::mat gamma, arma::colvec penalty_mu, int p, int q, int N, double CD_tol, int CD_max_iter, double step_width_PGD);
+RcppExport SEXP _sparsemixmat_penalization_M_mat_group_lasso(SEXP dataSEXP, SEXP data_centSEXP, SEXP zSEXP, SEXP NkSEXP, SEXP muSEXP, SEXP omegaSEXP, SEXP gammaSEXP, SEXP penalty_muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP NSEXP, SEXP CD_tolSEXP, SEXP CD_max_iterSEXP, SEXP step_width_PGDSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -87,7 +90,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type p(pSEXP);
     Rcpp::traits::input_parameter< int >::type q(qSEXP);
     Rcpp::traits::input_parameter< int >::type N(NSEXP);
-    rcpp_result_gen = Rcpp::wrap(penalization_M_mat_group_lasso(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N));
+    Rcpp::traits::input_parameter< double >::type CD_tol(CD_tolSEXP);
+    Rcpp::traits::input_parameter< int >::type CD_max_iter(CD_max_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type step_width_PGD(step_width_PGDSEXP);
+    rcpp_result_gen = Rcpp::wrap(penalization_M_mat_group_lasso(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N, CD_tol, CD_max_iter, step_width_PGD));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -123,8 +129,8 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_sparsemixmat_estep_calc", (DL_FUNC) &_sparsemixmat_estep_calc, 10},
     {"_sparsemixmat_mstep_obj", (DL_FUNC) &_sparsemixmat_mstep_obj, 8},
-    {"_sparsemixmat_penalization_M_mat_lasso", (DL_FUNC) &_sparsemixmat_penalization_M_mat_lasso, 11},
-    {"_sparsemixmat_penalization_M_mat_group_lasso", (DL_FUNC) &_sparsemixmat_penalization_M_mat_group_lasso, 11},
+    {"_sparsemixmat_penalization_M_mat_lasso", (DL_FUNC) &_sparsemixmat_penalization_M_mat_lasso, 14},
+    {"_sparsemixmat_penalization_M_mat_group_lasso", (DL_FUNC) &_sparsemixmat_penalization_M_mat_group_lasso, 14},
     {"_sparsemixmat_mean_w_array", (DL_FUNC) &_sparsemixmat_mean_w_array, 2},
     {"_sparsemixmat_cov_w_array", (DL_FUNC) &_sparsemixmat_cov_w_array, 6},
     {NULL, NULL, 0}

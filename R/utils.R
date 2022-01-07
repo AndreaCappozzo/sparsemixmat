@@ -3,14 +3,16 @@ EM_controls <- function(tol = c(1e-05, sqrt(.Machine$double.eps)),
                         max_iter = rep(1e03, 2),
                         type_start = c("hc", "random"),
                         n_subset_start = NULL,
-                        n_random_start = 50)
+                        n_random_start = 50,
+                        step_width_PGD = 1e-4) # step width for proximal gradient descent (group-lasso penalty only)
   # EM control parameters
 {
   list(tol = tol,
        max_iter = max_iter,
        type_start = match.arg( type_start, choices = eval(formals(EM_controls)$type_start) ),
        n_subset_start = n_subset_start,
-       n_random_start = n_random_start)
+       n_random_start = n_random_start,
+       step_width_PGD=step_width_PGD)
 }
 
 #' Scale and centering of three-way objects
@@ -51,7 +53,8 @@ penalization_M_mat_group_lasso_no_cpp <- function(data = data,
                                                   q = q,
                                                   N = N,
                                                   CD_tol,
-                                                  CD_max_iter) {
+                                                  CD_max_iter,
+                                                  step_width_PGD) {
   sum_X <- matrix(0, nrow = p, ncol = q)
   mu_penalized <- mu
   
@@ -59,8 +62,7 @@ penalization_M_mat_group_lasso_no_cpp <- function(data = data,
     sum_X <- sum_X + z[i] * data[, , i]
   }
   
-  first_addend <- (omega %*% sum_X) / Nk
-  ginv_omega <- lapply(1:p, function(l) MASS::ginv(omega[, l])) # Done it once so it needs not be replicated at each iteration in the while loop
+  first_addend_gradient <- (omega %*% sum_X%*%gamma)
   
   crit_Q_M <- TRUE
   iter_Q_M <- 0
@@ -73,21 +75,31 @@ penalization_M_mat_group_lasso_no_cpp <- function(data = data,
     iter_Q_M <- iter_Q_M + 1
     
     for (l in 1:p) {
-      second_addend_list <-
-        lapply(setdiff(1:p, l), function(r)
-          omega[, r] %o% mu_penalized[r,])
-      second_addend <- Reduce(f = "+", x = second_addend_list)
-      b_l <-
-        ginv_omega[[l]] %*% (first_addend - second_addend)
-      norm2_b_l <- norm(b_l, type = "2")
       
-      if (norm2_b_l < penalty_mu[l]) {
-        mu_penalized[l, ] <- 0
-      } else{
-        mu_penalized[l,] <-
-          (1 - exp(log(penalty_mu[l]) - log(norm2_b_l))) * b_l
-        # mu_penalized[l, ] <- (1 - penalty_mu[l] /norm(b_l,type = "2")) * b_l
-        # (1 - penalty_mu[l] /sqrt(sum(b_l)^2)) * b_l # WRONG
+      # Proximal gradient method for group lasso with stepsize parameter step_width_PGD
+      crit_prox <- TRUE
+      mu_pen_l_old <- mu_penalized[l,]
+      
+      while (crit_prox) {
+        
+        second_addend_gradient <-
+          Nk * (omega %*% mu_penalized %*% gamma) # need to recompute this at each iteration
+        gradient_l <-
+          -first_addend_gradient[l,] + second_addend_gradient[l,]
+        z_l <-
+          mu_penalized[l, ] - step_width_PGD * gradient_l # formula 4.16b of \cite{Hastie2015} adapted to our case, with step-size step_width_PGD equal to nu in their formulation
+        norm2_z_l <- norm(z_l, type = "2")
+        
+        if (norm2_z_l < penalty_mu[l]) {
+          mu_penalized[l, ] <- 0
+        } else{
+          mu_penalized[l,] <-
+            # (1 - exp(log(penalty_mu[l]) - log(norm2_z_l))) * z_l
+            (1 - (step_width_PGD * penalty_mu[l]) / norm2_z_l) * z_l
+        }
+        mu_pen_l <- mu_penalized[l,]
+        crit_prox <- CD_tol<norm(mu_pen_l-mu_pen_l_old,"2")
+        mu_pen_l_old <- mu_pen_l
       }
     }
     

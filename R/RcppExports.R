@@ -12,13 +12,13 @@ mstep_obj <- function(data, z, mean, sigma, psi, omega, gamma, tau) {
 }
 
 #' @export
-penalization_M_mat_lasso <- function(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N, CD_tol, CD_max_iter) {
-    .Call(`_sparsemixmat_penalization_M_mat_lasso`, data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N, CD_tol, CD_max_iter)
+penalization_M_mat_lasso <- function(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N, CD_tol, CD_max_iter, step_width_PGD) {
+    .Call(`_sparsemixmat_penalization_M_mat_lasso`, data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N, CD_tol, CD_max_iter, step_width_PGD)
 }
 
 #' @export
-penalization_M_mat_group_lasso <- function(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N, CD_tol, CD_max_iter) {
-    .Call(`_sparsemixmat_penalization_M_mat_group_lasso`, data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N, CD_tol, CD_max_iter)
+penalization_M_mat_group_lasso <- function(data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N, CD_tol, CD_max_iter, step_width_PGD) {
+    .Call(`_sparsemixmat_penalization_M_mat_group_lasso`, data, data_cent, z, Nk, mu, omega, gamma, penalty_mu, p, q, N, CD_tol, CD_max_iter, step_width_PGD)
 }
 
 #' @export

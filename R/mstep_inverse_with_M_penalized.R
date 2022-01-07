@@ -18,6 +18,7 @@ mstep_inverse_sparse_M <- function(data,
   # inner M step control parameters
   tol <- control$tol[2]
   max_iter <- control$max_iter[2]
+  step_width_PGD <- control$step_width_PGD
   
   # Compute sample mean, Nk and tau
   out <- mean_w_array(data, z)
@@ -43,7 +44,8 @@ mstep_inverse_sparse_M <- function(data,
           q = q,
           N = N,
           CD_tol = tol,
-          CD_max_iter = max_iter
+          CD_max_iter = max_iter,
+          step_width_PGD=step_width_PGD
         )
       mu[, , k] <- out_penalized$mu_penalized
       data_cent[[k]] <- out_penalized$data_cent_penalized

@@ -19,7 +19,7 @@ Rcpp::List penalization_M_mat_lasso(arma::cube data,
                              int q,
                              int N,
                              double CD_tol,
-                             int CD_max_iter) {
+                             int CD_max_iter, double step_width_PGD) {
   
   // Containers
   arma::mat mu_penalized=mu;
@@ -138,14 +138,13 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
                                            int q,
                                            int N,
                                            double CD_tol,
-                                           int CD_max_iter) {
+                                           int CD_max_iter, double step_width_PGD) {
   
   // Containers
   arma::mat mu_penalized=mu;
   arma::mat sum_X(p,q);
-  arma::rowvec b_l(q); 
-  arma::mat second_addend(p,q);
-  arma::mat pinv_omega_lth_col_mat(p,p);
+  arma::rowvec z_l(q);
+  arma::mat second_addend_gradient(p,q);
   
   //  Fill containers
   
@@ -154,6 +153,7 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
   // Vectors of indexes
   arma::colvec row_elem = arma::regspace(0, 1, p-1);
   arma::uvec p_row = find( row_elem <= p );
+  
   // Quantities that will remain fixed throughout the block coord descent algorithm
   
   // weighted sum of X
@@ -162,14 +162,8 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
   }
   
   
-  // Row-wise Moore Penrose inverse of Omega
-  for(int l=0; l<p; l++){
-    arma::uvec ind_l = find( row_elem == l );
-    pinv_omega_lth_col_mat.rows(ind_l) = pinv(omega.cols(ind_l).t()).t();
-  }
-  
   // First addend of the update
-  arma::mat first_addend = (omega*sum_X)/Nk;
+  arma::mat first_addend_gradient = (omega*sum_X*gamma);
     
     // MAIN COORDINATE ASCENT ALGORITHM
     bool crit_Q_M =true;
@@ -184,34 +178,30 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
       
       for(int l=0; l<p; l++){
 
+        // PROXIMAL GRADIENT ALGORITHM for group lasso with stepsize parameter step_width_PGD
         arma::uvec ind_l = find( row_elem == l );
-    
+        bool crit_prox=true;
+        arma::rowvec mu_pen_l_old = mu_penalized.rows(ind_l);
         // double norm_lth_row = norm(mu.rows(ind_l), 2);
-      
-  
-      second_addend.zeros();
-        
-      for(int r=0; r<p; r++){
-    
-          if (r==l) {
-            continue;
-          }
-        arma::uvec ind_r = find( row_elem == r );
-        second_addend+=omega.cols(ind_r)* mu_penalized.rows(ind_r);
-    }
-  
-      b_l = pinv_omega_lth_col_mat.rows(ind_l)*(first_addend-second_addend);
-      double norm_b_l = norm(b_l, 2);
+        while(crit_prox){
+          second_addend_gradient = Nk * (omega * mu_penalized * gamma); // need to recompute this at each iteration
+          arma::rowvec gradient_l = -first_addend_gradient.rows(ind_l) + second_addend_gradient.rows(ind_l);
+          
+            z_l = mu_penalized.rows(ind_l)-step_width_PGD*gradient_l;
+            double norm2_z_l = norm(z_l, 2);
   
   // STEP 1: check if the l-th row shall be set to 0
   
-      if(norm_b_l<=penalty_mu(l)){
-        mu_penalized.rows(ind_l)*= 0;
-      } else {
-      // STEP 2: Update rows in mu as per coordinate ascent algorithm
-      // mu_penalized.rows(ind_l) =1/(1+penalty_mu(l)/(norm_lth_row-penalty_mu(l)))*b_l;
-        mu_penalized.rows(ind_l) =(1-penalty_mu(l)/norm_b_l)*b_l;
-      }
+            if(norm2_z_l<=penalty_mu(l)){
+              mu_penalized.rows(ind_l)*= 0;
+            } else {
+            // STEP 2: Update rows in mu as per coordinate ascent algorithm
+              mu_penalized.rows(ind_l) =(1-(step_width_PGD*penalty_mu(l))/norm2_z_l)*z_l;
+            }
+            arma::rowvec mu_pen_l = mu_penalized.rows(ind_l);
+            crit_prox = CD_tol<norm(mu_pen_l-mu_pen_l_old,2);
+            mu_pen_l_old = mu_pen_l;
+        }
       pen_Q_M+= norm(mu_penalized.rows(ind_l), 2)*as_scalar(penalty_mu(l));
     }
   
