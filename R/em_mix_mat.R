@@ -123,7 +123,8 @@ em_mix_mat <- function(data,
       pen_mu_f(
         type_penalty_mu = type_penalty_mu,
         mu = mu,
-        penalty_mu = penalty_mu
+        penalty_mu = penalty_mu,
+        K=K
       )
 
     loglik_pen <- loglik - (pen_value_omega + pen_value_gamma + pen_value_mu)

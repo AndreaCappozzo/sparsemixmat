@@ -134,7 +134,7 @@ penalization_M_mat_coord_ascent_f <- function(type_penalty_mu) {
          # "group-lasso" = penalization_M_mat_group_lasso_no_cpp)
 }
 
-pen_mu_f <- function(type_penalty_mu,mu,penalty_mu){
+pen_mu_f <- function(type_penalty_mu,mu,penalty_mu, K){
   switch(type_penalty_mu,
          "lasso" = sum( sweep(abs(mu), c(1,2), penalty_mu, "*") ),
          "group-lasso" = sum(sweep(sapply(1:K, function(k)
