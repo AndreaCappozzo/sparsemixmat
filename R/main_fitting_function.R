@@ -54,7 +54,7 @@ fit_sparsemixmat <- function(data,
   
   for (model in 1:n_different_models) {
     models_container[[model]] <-
-      em_mix_mat(
+      tryCatch(em_mix_mat(
         data = data,
         K = all_hyperparameters[model, "K"],
         penalty_omega = all_hyperparameters[model, "penalty_omega"],
@@ -66,7 +66,9 @@ fit_sparsemixmat <- function(data,
         data_dim=data_dim,
         type_penalty_mu=type_penalty_mu,
         penalization_M_mat_coord_ascent=penalization_M_mat_coord_ascent
-      )
+      ),error = function(e) {
+        list(bic = NA)
+      })
     
     if (verbose) {
       ipbar <- ipbar + 1

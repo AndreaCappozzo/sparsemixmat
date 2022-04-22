@@ -177,13 +177,14 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
       double pen_Q_M=0 ;
       
       for(int l=0; l<p; l++){
-
+        int iter_prox = 0;
         // PROXIMAL GRADIENT ALGORITHM for group lasso with stepsize parameter step_width_PGD
         arma::uvec ind_l = find( row_elem == l );
         bool crit_prox=true;
         arma::rowvec mu_pen_l_old = mu_penalized.rows(ind_l);
         // double norm_lth_row = norm(mu.rows(ind_l), 2);
         while(crit_prox){
+          iter_prox += 1;
           second_addend_gradient = Nk * (omega * mu_penalized * gamma); // need to recompute this at each iteration
           arma::rowvec gradient_l = -first_addend_gradient.rows(ind_l) + second_addend_gradient.rows(ind_l);
           
@@ -199,12 +200,11 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
               mu_penalized.rows(ind_l) =(1-(step_width_PGD*penalty_mu(l))/norm2_z_l)*z_l;
             }
             arma::rowvec mu_pen_l = mu_penalized.rows(ind_l);
-            crit_prox = CD_tol<norm(mu_pen_l-mu_pen_l_old,2);
+            crit_prox = ((CD_tol<norm(mu_pen_l-mu_pen_l_old,2)) & (iter_prox < CD_max_iter));
             mu_pen_l_old = mu_pen_l;
         }
       pen_Q_M+= norm(mu_penalized.rows(ind_l), 2)*as_scalar(penalty_mu(l));
     }
-  
   
   Q_M = arma::trace(omega*sum_X * gamma * mu_penalized.t())- Nk*.5*arma::trace(omega*mu_penalized*gamma*mu_penalized.t())-pen_Q_M;
   err_Q_M = abs(Q_M - Q_M_prev) / (1 + abs(Q_M));

@@ -75,13 +75,13 @@ penalization_M_mat_group_lasso_no_cpp <- function(data = data,
     iter_Q_M <- iter_Q_M + 1
     
     for (l in 1:p) {
-      
+      iter_prox <- 0
       # Proximal gradient method for group lasso with stepsize parameter step_width_PGD
       crit_prox <- TRUE
       mu_pen_l_old <- mu_penalized[l,]
       
       while (crit_prox) {
-        
+        iter_prox <- iter_prox+1
         second_addend_gradient <-
           Nk * (omega %*% mu_penalized %*% gamma) # need to recompute this at each iteration
         gradient_l <-
@@ -98,7 +98,7 @@ penalization_M_mat_group_lasso_no_cpp <- function(data = data,
             (1 - (step_width_PGD * penalty_mu[l]) / norm2_z_l) * z_l
         }
         mu_pen_l <- mu_penalized[l,]
-        crit_prox <- CD_tol<norm(mu_pen_l-mu_pen_l_old,"2")
+        crit_prox <- (CD_tol<norm(mu_pen_l-mu_pen_l_old,"2") & iter_prox < CD_max_iter)
         mu_pen_l_old <- mu_pen_l
       }
     }
