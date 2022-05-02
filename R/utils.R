@@ -87,10 +87,10 @@ penalization_M_mat_group_lasso_no_cpp <- function(data = data,
         gradient_l <-
           -first_addend_gradient[l,] + second_addend_gradient[l,]
         z_l <-
-          mu_penalized[l, ] - step_width_PGD * gradient_l # formula 4.16b of \cite{Hastie2015} adapted to our case, with step-size step_width_PGD equal to nu in their formulation
+          mu_penalized[l, ] - step_width_PGD * gradient_l # formula 4.16a of \cite{Hastie2015} adapted to our case, with step-size step_width_PGD equal to nu in their formulation
         norm2_z_l <- norm(z_l, type = "2")
         
-        if (norm2_z_l < penalty_mu[l]) {
+        if (norm2_z_l < exp(log(penalty_mu[l])+log(step_width_PGD))) {
           mu_penalized[l, ] <- 0
         } else{
           mu_penalized[l,] <-

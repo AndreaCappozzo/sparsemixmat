@@ -193,7 +193,7 @@ Rcpp::List penalization_M_mat_group_lasso(arma::cube data,
   
   // STEP 1: check if the l-th row shall be set to 0
   
-            if(norm2_z_l<=penalty_mu(l)){
+            if(norm2_z_l<=exp(log(step_width_PGD)+log(penalty_mu(l)))){
               mu_penalized.rows(ind_l)*= 0;
             } else {
             // STEP 2: Update rows in mu as per coordinate ascent algorithm
