@@ -7,6 +7,7 @@ em_mix_mat <- function(data,
                        penalize_diag,
                        hc_init,
                        data_dim,
+                       penalty_factor,
                        type_penalty_mu,
                        penalization_M_mat_coord_ascent,
                        control = EM_controls()) {
@@ -28,7 +29,7 @@ em_mix_mat <- function(data,
   if (!is.matrix(penalty_mu) & type_penalty_mu == "lasso"){
     penalty_mu <- matrix(penalty_mu, nrow = p, ncol = q)
   } else if (!is.matrix(penalty_mu) & type_penalty_mu == "group-lasso") {
-    penalty_mu <- rep(penalty_mu,p)
+    penalty_mu <- rep(penalty_mu,p) *penalty_factor
   }
 
   # store EM parameters

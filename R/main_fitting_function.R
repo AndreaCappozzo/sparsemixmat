@@ -1,5 +1,17 @@
 # WRAPPER FUNCTION
 # Function for fitting Sparse Mixture of matrix normals for Model-based Clustering  ---------------------
+#' @param data 
+#'
+#' @param K 
+#' @param penalty_omega 
+#' @param penalty_gamma 
+#' @param penalty_mu 
+#' @param type_penalty_mu 
+#' @param penalize_diag 
+#' @param penalty_factor Separate penalty factors can be applied to each row. This is a number that multiplies penalty_mu to allow differential shrinkage. Can be 0 for some rows, which implies no shrinkage, and that row is always included in the model. Default is 1 for all rows. Works only for group-lasso penalty 
+#' @param control 
+#' @param verbose 
+#'
 #' @export
 fit_sparsemixmat <- function(data,
                          K = 2,
@@ -8,6 +20,7 @@ fit_sparsemixmat <- function(data,
                          penalty_mu,
                          type_penalty_mu = c("lasso", "group-lasso"),
                          penalize_diag,
+                         penalty_factor=1, 
                          control = EM_controls(),
                          verbose = interactive()) {
   
@@ -61,6 +74,7 @@ fit_sparsemixmat <- function(data,
         penalty_gamma = all_hyperparameters[model, "penalty_gamma"],
         penalty_mu=all_hyperparameters[model, "penalty_mu"],
         penalize_diag = penalize_diag,
+        penalty_factor=penalty_factor,
         hc_init = hc_init,
         control = control,
         data_dim=data_dim,
