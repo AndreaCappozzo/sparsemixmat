@@ -15,8 +15,8 @@ likelihood, with specifically tailored group and graphical lasso
 penalties.
 
 This repository is associated with the paper Cappozzo, Casa, Fop (2023+)
-Sparse model-based clustering of three-way data via lasso-type
-penalties. FIXME ADD ARXIV LINK
+*Sparse model-based clustering of three-way data via lasso-type
+penalties.* <https://arxiv.org/abs/2307.10673>
 
 ## Installation
 
