@@ -133,12 +133,10 @@ mstep_inverse_sparse_M <- function(data,
     pen_value_omega <- sum( sweep(abs(omega), c(1,2), penalty_omega, "*") )
     pen_value_gamma <- sum( sweep(abs(gamma), c(1,2), penalty_gamma, "*") )
     pen_value_mu <-
-      pen_mu_f(
-        type_penalty_mu = type_penalty_mu,
-        mu = mu,
-        penalty_mu = penalty_mu,
-        K=K
-      )
+      sum(sweep(sapply(1:K, function(k)
+        apply(mu[, , k], 1, norm, type = "2")),
+        MARGIN = 1,
+        STATS = penalty_mu,FUN = "*"))
     
     
     obj <- sum(obj_vec) - (pen_value_omega + pen_value_gamma + pen_value_mu)
