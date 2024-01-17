@@ -132,8 +132,16 @@ mstep_inverse_sparse_M <- function(data,
     # check convergence
     pen_value_omega <- sum( sweep(abs(omega), c(1,2), penalty_omega, "*") )
     pen_value_gamma <- sum( sweep(abs(gamma), c(1,2), penalty_gamma, "*") )
+    pen_value_mu <-
+      pen_mu_f(
+        type_penalty_mu = type_penalty_mu,
+        mu = mu,
+        penalty_mu = penalty_mu,
+        K=K
+      )
     
-    obj <- sum(obj_vec) - (pen_value_omega + pen_value_gamma)
+    
+    obj <- sum(obj_vec) - (pen_value_omega + pen_value_gamma + pen_value_mu)
     OBJ <- c(OBJ, obj)
     err <- abs(obj - obj_prev)/(1 + abs(obj))
     obj_prev <- obj
