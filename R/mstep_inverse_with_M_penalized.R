@@ -27,31 +27,6 @@ mstep_inverse_sparse_M <- function(data,
   mu <- out$mean
   data_cent <- out$data_cent
   
-  if(any(penalty_mu!=0)) {
-    # Compute sparse mean matrices via coordinate ascent algorithm (either via lasso or group-lasso penalty)
-    for (k in 1:K) {
-      out_penalized <-
-        penalization_M_mat_coord_ascent(
-          data = data,
-          data_cent = data_cent[[k]],
-          z = z[, k],
-          Nk = Nk[k],
-          mu = mu[, , k], # I initialize it with the sample mean at the current iteration
-          omega = omega[, , k],
-          gamma = gamma[, , k],
-          penalty_mu = penalty_mu,
-          p = p,
-          q = q,
-          N = N,
-          CD_tol = tol,
-          CD_max_iter = max_iter,
-          step_width_PGD=step_width_PGD
-        )
-      mu[, , k] <- out_penalized$mu_penalized
-      data_cent[[k]] <- out_penalized$data_cent_penalized
-    }
-  }
-  
   # store parameters
   sigma <- array(0, dim = c(p, p, K))
   psi <- array(0, dim = c(q, q, K))
@@ -69,6 +44,32 @@ mstep_inverse_sparse_M <- function(data,
     iter <- iter + 1
     # start <- if ( iter < 2 & initialization ) "cold" else "warm" FIXME this seems to create issues: need to investigate it
     start <- "cold"
+    
+    if(any(penalty_mu!=0)) {
+      # Compute sparse mean matrices via coordinate ascent algorithm (either via lasso or group-lasso penalty)
+      for (k in 1:K) {
+        out_penalized <-
+          penalization_M_mat_coord_ascent(
+            data = data,
+            data_cent = data_cent[[k]],
+            z = z[, k],
+            Nk = Nk[k],
+            mu = mu[, , k], # I initialize it with the sample mean at the current iteration
+            omega = omega[, , k],
+            gamma = gamma[, , k],
+            penalty_mu = penalty_mu,
+            p = p,
+            q = q,
+            N = N,
+            CD_tol = tol,
+            CD_max_iter = max_iter,
+            step_width_PGD=step_width_PGD
+          )
+        mu[, , k] <- out_penalized$mu_penalized
+        data_cent[[k]] <- out_penalized$data_cent_penalized
+      }
+    }
+    
     
     for ( k in 1:K ) {
       
