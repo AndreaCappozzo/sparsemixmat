@@ -56,7 +56,8 @@ em_mix_mat <- function(data,
       penalty_omega=penalty_omega,
       penalty_gamma=penalty_gamma,
       penalty_mu=penalty_mu,
-      penalization_M_mat_coord_ascent=penalization_M_mat_coord_ascent
+      penalization_M_mat_coord_ascent=penalization_M_mat_coord_ascent,
+      type_penalty_mu=type_penalty_mu
     )
   
   z <- init$z
@@ -94,7 +95,8 @@ em_mix_mat <- function(data,
         gamma = gamma,
         control = control,
         dims = dims,
-        penalization_M_mat_coord_ascent = penalization_M_mat_coord_ascent
+        penalization_M_mat_coord_ascent = penalization_M_mat_coord_ascent,
+        type_penalty_mu=type_penalty_mu
       )
 
     tau <- out_mstep$parameters$tau
@@ -148,7 +150,8 @@ em_mix_mat <- function(data,
       gamma = gamma,
       control = control,
       dims = dims,
-      penalization_M_mat_coord_ascent = penalization_M_mat_coord_ascent
+      penalization_M_mat_coord_ascent = penalization_M_mat_coord_ascent,
+      type_penalty_mu=type_penalty_mu
     )
   
   # Compute bic
