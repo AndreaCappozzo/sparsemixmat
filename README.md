@@ -14,9 +14,10 @@ Estimation of the model relies on the maximization of a penalized
 likelihood, with specifically tailored group and graphical lasso
 penalties.
 
-This repository is associated with the paper Cappozzo, Casa, Fop (2023+)
+This repository is associated with the paper Cappozzo, Casa, Fop (2024)
 *Sparse model-based clustering of three-way data via lasso-type
-penalties.* <https://arxiv.org/abs/2307.10673>
+penalties.*
+<https://www.tandfonline.com/doi/full/10.1080/10618600.2024.2429705>
 
 ## Installation
 
